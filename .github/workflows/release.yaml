@@ -69,10 +69,10 @@ jobs:
         goos: [linux, windows, darwin]
         goarch: ['386', amd64]
         include:
-          - os: darwin
+          - goos: darwin
             goarch: [arm, arm64]
         exclude:
-          - os: darwin
+          - goos: darwin
             goarch: ['386']
     steps:
       - uses: actions/checkout@v3
