@@ -83,12 +83,12 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version-file: "go.mod"
-
       - name: Gather version facts
         id: version
         run: |
           tag=${GITHUB_REF/refs\/tags\//}
           version=${tag#v}
+          echo "version=${version}" >> $GITHUB_OUTPUT
       - name: Build binary
         run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
         working-directory: ${{ github.workspace }}
