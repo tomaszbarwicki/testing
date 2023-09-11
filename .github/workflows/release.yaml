@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -68,8 +69,6 @@ jobs:
     needs: release
     strategy:
       matrix:
-        # goos: [linux, darwin, windows]
-        # goarch: ['386', amd64]
         goos: [linux, windows, darwin]
         goarch: [amd64]
         include:
@@ -87,14 +86,14 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version-file: "go.mod"
-      - name: Gather version facts
-        id: version
-        run: |
-          tag=${GITHUB_REF/refs\/tags\//}
-          version=${tag#v}
-          echo "version=${version}" >> $GITHUB_OUTPUT
+      # - name: Gather version facts
+      #   id: version
+      #   run: |
+      #     tag=${GITHUB_REF/refs\/tags\//}
+      #     version=${tag#v}
+      #     echo "version=${version}" >> $GITHUB_OUTPUT
       - name: Build binary
-        run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+        run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
         working-directory: ${{ github.workspace }}
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
@@ -102,6 +101,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
-          asset_name: ${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_path: ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_name: ${{ env.APP_NAME }}-${{ needs.release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
           asset_content_type: application/octet-stream
