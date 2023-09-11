@@ -42,9 +42,11 @@ jobs:
           tag=${GITHUB_REF/refs\/tags\//}
           version=${tag#v}
           major=${version%%.*}
+          major_minor=${version%.*}
           echo "tag=${tag}" >> $GITHUB_OUTPUT
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "major=${major}" >> $GITHUB_OUTPUT
+          echo "major_minor=${major_minor}" >> $GITHUB_OUTPUT
       - name: Create GitHub release
         id: create_release
         uses: release-drafter/release-drafter@v5
@@ -58,6 +60,8 @@ jobs:
         run: |
           git tag v${{ steps.version.outputs.major }} ${{ steps.version.outputs.tag }} -f
           git push origin refs/tags/v${{ steps.version.outputs.major }} -f
+          git tag v${{ steps.version.outputs.major_minor }} ${{ steps.version.outputs.tag }} -f
+          git push origin refs/tags/v${{ steps.version.outputs.major_minor }} -f
 
   build:
     runs-on: ubuntu-latest
