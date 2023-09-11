@@ -20,11 +20,6 @@
 name: Create GitHub Release
 
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     version: 
-  #       description: "The version to release. For example, 1.0.0"
-  #       required: true
   push:
     tags:
       - "v*.*.*"
@@ -40,19 +35,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          # fetch-tags: true
           fetch-depth: 0
-          # ref: v0.7.0
       - name: Gather version facts
         id: version
-          # if [[ ${{ github.event_name == 'workflow_dispatch' }} == true ]]; then
-          #   tag=${{ inputs.version }}
-          # else
-          #   tag=${GITHUB_REF/refs\/tags\//}
-          # fi
         run: |
           tag=${GITHUB_REF/refs\/tags\//}
           version=${tag#v}
+          major=${version%%.*}
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "major=${major}" >> $GITHUB_OUTPUT
       - name: Create GitHub release
         id: create_release
         uses: release-drafter/release-drafter@v5
@@ -75,17 +67,17 @@ jobs:
         # goos: [linux, darwin, windows]
         # goarch: ['386', amd64]
         goos: [linux, windows, darwin]
-        goarch: [amd64]
-        # include:
-        #   - os: darwin
-        #     version: [arm, arm64]
+        goarch: ['386', amd64]
+        include:
+          - os: darwin
+            version: [arm, arm64]
+        exclude:
+          - os: darwin
+            version: ['386']
     steps:
       - uses: actions/checkout@v3
         with:
-          # fetch-tags: true
           fetch-depth: 0
-          # ref: v0.7.0
-
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -93,34 +85,12 @@ jobs:
 
       - name: Gather version facts
         id: version
-      #   if [[ ${{ github.event_name == 'workflow_dispatch' }} == true ]]; then
-      #   tag=${{ inputs.version }}
-      # else
-      #   tag=${GITHUB_REF/refs\/tags\//}
-      # fi
         run: |
           tag=${GITHUB_REF/refs\/tags\//}
           version=${tag#v}
-          major=${version%%.*}
-          echo "tag=${tag}" >> $GITHUB_OUTPUT
-          echo "version=${version}" >> $GITHUB_OUTPUT
-          echo "major=${major}" >> $GITHUB_OUTPUT
-
       - name: Build binary
         run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
-        
         working-directory: ${{ github.workspace }}
-
-        # - name: Create GitHub release
-        #   id: create_release
-        #   uses: release-drafter/release-drafter@v5
-        #   with:
-        #     config-name: release-drafter.yaml
-        #     version: ${{ steps.version.outputs.version }}
-        #     publish: true
-        #   env:
-        #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
@@ -130,4 +100,3 @@ jobs:
           asset_path: ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
           asset_name: ${{ env.APP_NAME }}-${{ steps.version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
           asset_content_type: application/octet-stream
-
