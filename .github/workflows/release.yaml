@@ -70,8 +70,6 @@ jobs:
         goarch: [amd64]
         include:
           - goos: darwin
-            goarch: arm
-          - goos: darwin
             goarch: arm64
           - goos: windows
             goarch: '386'
