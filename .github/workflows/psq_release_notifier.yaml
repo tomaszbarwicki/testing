@@ -32,20 +32,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Go ${{ matrix.go-version }}
+    - name: Setup Go 
       uses: actions/setup-go@v4
       with:
         go-version: '>=1.20.7'
-    - name: Download a single artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: psql_release
-        path: release-notifier/psql_release
-    - name: Force update major tag
+    # - name: Download previous release artifact
+    #   uses: actions/download-artifact@v3
+    #   with:
+    #     name: psql_release
+    #     path: release-notifier/psql_release
+    - name: Run notifier
       run: |
         cd release-notifier
         go run . psql
-    - name: 'Upload Artifact'
+    - name: Upload new release artifact
       uses: actions/upload-artifact@v3
       with:
         name: psql_release
