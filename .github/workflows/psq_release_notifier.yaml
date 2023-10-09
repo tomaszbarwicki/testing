@@ -36,11 +36,11 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '>=1.20.7'
-    # - name: Download previous release artifact
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     name: psql_release
-    #     path: release-notifier/psql_release
+    - name: Download previous release artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: psql_release
+        path: release-notifier/psql_release
     - name: Run notifier
       run: |
         cd release-notifier
