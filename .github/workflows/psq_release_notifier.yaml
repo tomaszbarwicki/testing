@@ -21,7 +21,9 @@ name: PostgresSQL new release notifier
 
 on:
     workflow_dispatch:
-
+    schedule:
+        # Run every day at 01:00 at night
+        - cron: "0 1 * * *" # UTC time
 env:
     TRACTUSX_MAILINGLIST: ${{ secrets.TRACTUSX_MAILINGLIST }}
     DEVSECOPS_NOTIFICATION_EMAIL: ${{ secrets.DEVSECOPS_NOTIFICATION_EMAIL }}
