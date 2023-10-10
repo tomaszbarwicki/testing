@@ -42,7 +42,7 @@ jobs:
         workflow: ${{ github.event.workflow_run.workflow_id }}
         workflow_conclusion: success
         name: psql_release
-        path: release-notifier/psql_release
+        path: release-notifier/
     - name: Run notifier
       run: |
         cd release-notifier
