@@ -17,7 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # #############################################################################
 
-name: PostgresSQL new release notifier
+name: PostgreSQL new release notifier
 
 on:
     workflow_dispatch:
@@ -45,6 +45,7 @@ jobs:
         workflow_conclusion: success
         name: psql_release
         path: release-notifier/
+        if_no_artifact_found: warn
     - name: Run notifier
       run: |
         cd release-notifier
