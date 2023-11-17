@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.8.0](https://github.com/tomaszbarwicki/testing/compare/v6.7.0...v6.8.0) (2023-11-17)
+
+
+### Features
+
+* feature 2 ([ca81a66](https://github.com/tomaszbarwicki/testing/commit/ca81a66341bf444a62113cc293845e358d2945e0))
+
+
+### Bug Fixes
+
+* fixed feat2 ([6790740](https://github.com/tomaszbarwicki/testing/commit/679074088e28fea8f070b9aa7138ad962c4e9fce))
+
 ## [6.7.0](https://github.com/tomaszbarwicki/testing/compare/v6.6.6...v6.7.0) (2023-11-17)
 
 
