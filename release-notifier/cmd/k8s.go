@@ -64,6 +64,8 @@ func k8sNotifier() {
 	latestRelease := k8s.GetLatestRel()
 	prevRelease := k8s.GetPrevRelFromArtifact()
 
+	log.Println("New release, latest release", latestRelease, prevRelease)
+
 	if match, _ := regexp.MatchString(regexPattern, latestRelease); match && latestRelease != prevRelease {
 		log.Printf("New release is out: %v\n", latestRelease)
 		alignedRelease := os.Getenv("CURRENT_ALIGNED_K8S_VER")
