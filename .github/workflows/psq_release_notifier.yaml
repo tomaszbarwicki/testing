@@ -20,15 +20,20 @@
 name: PostgreSQL new release notifier
 
 on:
-    workflow_dispatch:
-    schedule:
-        # Run every day at 01:00 at night
-        - cron: "0 1 * * *" # UTC time
+  workflow_dispatch:
+    inputs:
+      recipient:
+        description: "Recipent email"
+        required: false
+  schedule:
+      # Run every day at 01:00 at night
+      - cron: "0 1 * * *" # UTC time
 env:
-    TRACTUSX_MAILINGLIST: ${{ secrets.TRACTUSX_MAILINGLIST }}
-    DEVSECOPS_NOTIFICATION_EMAIL: ${{ secrets.DEVSECOPS_NOTIFICATION_EMAIL }}
-    DEVSECOPS_NOTIFICATION_EMAIL_PASSWORD: ${{ secrets.DEVSECOPS_NOTIFICATION_EMAIL_PASSWORD }}
-
+    TRACTUSX_MAILINGLIST: ${{ github.event.inputs.recipient != '' && github.event.inputs.recipient || '_CHANGE_ME_@MAIL.COM'  }}
+    DEVSECOPS_NOTIFICATION_EMAIL: eclipse.tractusx@gmail.com
+    DEVSECOPS_NOTIFICATION_EMAIL_PASSWORD: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
+    CURRENT_ALIGNED_PSQL_VER: 15.0.0
+    CURRENT_ALIGNED_K8S_VER: 1.28.0
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -38,20 +43,37 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '>=1.20.7'
-    - name: Download artifact
+    - name: Download PSQL artifact
       uses: dawidd6/action-download-artifact@v2
       with:
         workflow: ${{ github.event.workflow_run.workflow_id }}
         workflow_conclusion: success
+        if_no_artifact_found: warn
         name: psql_release
         path: release-notifier/
-        if_no_artifact_found: warn
-    - name: Run notifier
+    - name: Run PSQL notifier
       run: |
         cd release-notifier
-        go run . psql
-    - name: Upload new release artifact
+        go run main.go psql
+    - name: Upload PSQL new release artifact
       uses: actions/upload-artifact@v3
       with:
         name: psql_release
         path: release-notifier/psql_release
+    - name: Download K8S artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: ${{ github.event.workflow_run.workflow_id }}
+        workflow_conclusion: success
+        if_no_artifact_found: warn
+        name: k8s_release
+        path: release-notifier/
+    - name: Run K8S notifier
+      run: |
+        cd release-notifier
+        go run main.go k8s
+    - name: Upload K8S new release artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: k8s_release
+        path: release-notifier/k8s_release
