@@ -17,7 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # #############################################################################
 
-name: PostgreSQL new release notifier
+name: Release notifier
 
 on:
   workflow_dispatch:
@@ -43,37 +43,23 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '>=1.20.7'
-    - name: Download PSQL artifact
+    - name: Download artifact
       uses: dawidd6/action-download-artifact@v2
       with:
         workflow: ${{ github.event.workflow_run.workflow_id }}
         workflow_conclusion: success
         if_no_artifact_found: warn
-        name: psql_release
+        name: releases_artifact
         path: release-notifier/
-    - name: Run PSQL notifier
+    - name: Run notifier
       run: |
         cd release-notifier
         go run main.go psql
-    - name: Upload PSQL new release artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: psql_release
-        path: release-notifier/psql_release
-    - name: Download K8S artifact
-      uses: dawidd6/action-download-artifact@v2
-      with:
-        workflow: ${{ github.event.workflow_run.workflow_id }}
-        workflow_conclusion: success
-        if_no_artifact_found: warn
-        name: k8s_release
-        path: release-notifier/
-    - name: Run K8S notifier
-      run: |
-        cd release-notifier
         go run main.go k8s
     - name: Upload K8S new release artifact
       uses: actions/upload-artifact@v3
       with:
-        name: k8s_release
-        path: release-notifier/k8s_release
+        name: releases_artifact
+        path: |
+          release-notifier/k8s_release
+          release-notifier/psql_release
