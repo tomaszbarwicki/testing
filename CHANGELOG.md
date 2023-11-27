@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.8.1](https://github.com/tomaszbarwicki/testing/compare/v6.8.0...v6.8.1) (2023-11-27)
+
+
+### Bug Fixes
+
+* removal of k8s_release ([0354281](https://github.com/tomaszbarwicki/testing/commit/035428145341198f23366e103a60f9bee3a1eeb9))
+
 ## [6.8.0](https://github.com/tomaszbarwicki/testing/compare/v6.7.0...v6.8.0) (2023-11-17)
 
 
