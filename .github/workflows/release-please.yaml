@@ -1,10 +1,10 @@
 on:
   push:
     paths:
-      - folder1/**
+      - release-automation/**
   pull_request:
     paths: 
-    - 'folder1/**'
+    - 'release-automation/**'
   
 permissions:
     contents: write
