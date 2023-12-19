@@ -1,7 +1,4 @@
 on:
-  push:
-    paths:
-      - release-automation/**
   pull_request:
     paths: 
     - 'release-automation/**'
