@@ -1,8 +1,9 @@
 on:
-  pull_request:
+  push:
     paths: 
-    - 'release-automation/**'
-  
+      - 'release-automation/**'
+    branches:
+      - main
 permissions:
     contents: write
     pull-requests: write
