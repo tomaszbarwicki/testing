@@ -38,3 +38,5 @@ Currently it supports PostgreSQL only with potential to grow and support other a
    - Continuous feedback from the community is encouraged and used to further improve the upgrade process for future releases.
 
 By following this well-defined process, you ensure that major release upgrades are initiated, executed, and communicated effectively while maintaining community consensus and alignment with documentation. This promotes transparency, minimizes disruptions, and fosters a collaborative atmosphere within Tractus-X community.
+
+asdf
