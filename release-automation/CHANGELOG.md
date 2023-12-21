@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/tomaszbarwicki/testing/compare/v0.1.0...v0.2.0) (2023-12-21)
+
+
+### Features
+
+* another awesome feat to test workflow tags creation ([bf494ad](https://github.com/tomaszbarwicki/testing/commit/bf494ad49b975e3ebcb03f250ffedd8c8a31287b))
+
 ## [0.1.0](https://github.com/tomaszbarwicki/testing/compare/v0.0.1...v0.1.0) (2023-12-21)
 
 
