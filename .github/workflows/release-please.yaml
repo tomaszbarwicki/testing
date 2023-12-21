@@ -12,6 +12,6 @@ jobs:
         steps:
         - uses: google-github-actions/release-please-action@v3
           with:
-            path: 'release-automation/**'
+            path: 'release-automation'
             release-type: go
             package-name: release-automation
