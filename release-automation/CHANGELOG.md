@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/tomaszbarwicki/testing/compare/v0.0.1...v0.1.0) (2023-12-21)
+
+
+### Features
+
+* test feature ([2cd9a07](https://github.com/tomaszbarwicki/testing/commit/2cd9a07f602a8acd4e03aedf07e273bb166ea334))
+
 ## [0.0.1](https://github.com/tomaszbarwicki/testing/compare/v0.0.1...v0.0.1) (2023-12-21)
 
 
