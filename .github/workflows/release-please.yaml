@@ -6,24 +6,58 @@ permissions:
     contents: write
     pull-requests: write
 name: release please
+env:
+  APP_NAME: 'release-automation'
+
 jobs:
     release-please:
         runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            goos: [linux, windows, darwin]
+            goarch: [amd64]
+            include:
+              - goos: darwin
+                goarch: arm64
+              - goos: windows
+              - goos: linux
         steps:
         - uses: google-github-actions/release-please-action@v4
           id: release
           with:
-            path: 'release-automation'
+            path: ${{ env.APP_NAME }}
             release-type: go
         - uses: actions/checkout@v4
         - name: tag major and minor versions
           if: ${{ steps.release.outputs.release-automation--release_created }}
           run: |
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git remote add gh-token "https://${{ secrets.GITHUB_TOKEN }}@github.com/google-github-actions/release-please-action.git"
             git tag -d v${{ steps.release.outputs.release-automation--major }} || true
             git tag -d v${{ steps.release.outputs.release-automation--major }}.${{ steps.release.outputs.release-automation--minor }} || true
             git push origin :v${{ steps.release.outputs.release-automation--major }} || true
             git push origin :v${{ steps.release.outputs.release-automation--major }}.${{ steps.release.outputs.release-automation--minor }} || true
             git tag -a v${{ steps.release.outputs.release-automation--major }} -m "Release v${{ steps.release.outputs.release-automation--major }}"
-            git tag -a v${{ steps.release.outputs.release-automation--major }}.${{ steps.release.outputs.release-automation--minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
+            git tag -a v${{ steps.release.outputs.release-automation--major }}.${{ steps.release.outputs.release-automation--minor }} -m "Release v${{ steps.release.outputs.release-automation--major }}.${{ steps.release.outputs.release-automation--minor }}"
             git push origin v${{ steps.release.outputs.release-automation--major }}
             git push origin v${{ steps.release.outputs.release-automation--major }}.${{ steps.release.outputs.release-automation--minor }}
+        - name: Set up Go
+          if: ${{ steps.release.outputs.release-automation--release_created }}
+          uses: actions/setup-go@v3
+          with:
+            go-version-file: "go.mod"
+        - name: Build binary
+          if: ${{ steps.release.outputs.release-automation--release_created }}
+          run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          working-directory: ${{ github.workspace }}
+        - name: Upload release assets
+          if: ${{ steps.release.outputs.release-automation--release_created }}
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.release.outputs.release-automation--upload_url }}
+            asset_path: ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ steps.release.outputs.tag_name }}-${{ matrix.goos }}-${{ matrix.goarch }}
+            asset_name: ${{ env.APP_NAME }}-${{ steps.release.outputs.tag_name }}-${{ matrix.goos }}-${{ matrix.goarch }}
+            asset_content_type: application/octet-stream

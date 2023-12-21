@@ -22,3 +22,4 @@ curl -o web/assets/js/materialize.min.js https://cdnjs.cloudflare.com/ajax/libs/
 ```
 new
 awesome
+power
