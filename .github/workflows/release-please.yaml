@@ -53,11 +53,11 @@ jobs:
           if: ${{ needs.prepare-release.outputs.release_created }}
           uses: actions/setup-go@v3
           with:
-            go-version-file: 'release-automation/go.mod'
+            go-version-file: release-automation/go.mod'
         - name: Build binary
           if: ${{ needs.prepare-release.outputs.release_created }}
-          run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
-          working-directory: ${{ github.workspace }}
+          run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
         - name: Upload release assets
           if: ${{ needs.prepare-release.outputs.release_created }}
           uses: actions/upload-release-asset@v1

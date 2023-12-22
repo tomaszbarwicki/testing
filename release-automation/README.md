@@ -25,3 +25,4 @@ awesome
 power
 x
 y
+z
