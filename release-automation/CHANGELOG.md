@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/tomaszbarwicki/testing/compare/v0.3.0...v0.3.1) (2023-12-22)
+
+
+### Bug Fixes
+
+* go.mod artifacts creation in workflow ([2f41ac4](https://github.com/tomaszbarwicki/testing/commit/2f41ac4fdc4ad7f05b5eedd6e2fcefdae230cbe0))
+
 ## [0.3.0](https://github.com/tomaszbarwicki/testing/compare/v0.2.0...v0.3.0) (2023-12-22)
 
 
