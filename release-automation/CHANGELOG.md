@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/tomaszbarwicki/testing/compare/v0.2.0...v0.3.0) (2023-12-22)
+
+
+### Features
+
+* add artifacts creation to workflow ([e90ae68](https://github.com/tomaszbarwicki/testing/commit/e90ae68245deb5d745189c17ff0721f0a47d8999))
+
+
+### Bug Fixes
+
+* artifacts creation in workflow ([0136fec](https://github.com/tomaszbarwicki/testing/commit/0136feccfba5a8703a6cfc49a1dde525811292c4))
+
 ## [0.2.0](https://github.com/tomaszbarwicki/testing/compare/v0.1.0...v0.2.0) (2023-12-21)
 
 
