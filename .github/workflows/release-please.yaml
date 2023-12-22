@@ -53,7 +53,7 @@ jobs:
           if: ${{ needs.prepare-release.outputs.release_created }}
           uses: actions/setup-go@v3
           with:
-            go-version-file: release-automation/go.mod'
+            go-version-file: 'release-automation/go.mod'
         - name: Build binary
           if: ${{ needs.prepare-release.outputs.release_created }}
           run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
