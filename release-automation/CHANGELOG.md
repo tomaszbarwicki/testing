@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/tomaszbarwicki/testing/compare/v0.3.2...v0.3.3) (2023-12-22)
+
+
+### Bug Fixes
+
+* working directory at artifacts creation in workflow ([7bf207f](https://github.com/tomaszbarwicki/testing/commit/7bf207f013f4fad8b4a63a28ae104932d36705b9))
+
 ## [0.3.2](https://github.com/tomaszbarwicki/testing/compare/v0.3.1...v0.3.2) (2023-12-22)
 
 
