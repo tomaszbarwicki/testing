@@ -38,7 +38,7 @@ jobs:
             git tag -a v${{ steps.release.outputs[format('{0}--major',env.APP_NAME)]}}.${{ steps.release.outputs[format('{0}--minor', env.APP_NAME)] }} -m "Release v${{ steps.release.outputs[format('{0}--major',env.APP_NAME)] }}.${{ steps.release.outputs[format('{0}--minor', env.APP_NAME)] }}"
             git push origin v${{ steps.release.outputs[format('{0}--major',env.APP_NAME)]}}
             git push origin v${{ steps.release.outputs[format('{0}--major',env.APP_NAME)] }}.${{ steps.release.outputs[format('{0}--minor', env.APP_NAME)] }}
-    build:
+    build-assets:
       if: ${{ needs.prepare-release.outputs.release_created }}
       runs-on: ubuntu-latest
       needs: prepare-release
@@ -55,8 +55,13 @@ jobs:
           uses: actions/setup-go@v4
           with:
             go-version-file: 'release-automation/go.mod'
-        - name: Build binary
+        - name: Build linux/macos binary
+          if: ${{ matrix.goos }} != 'windows'
           run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
+        - name: Build windows binary
+          if: ${{ matrix.goos }} == 'windows'
+          run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}.exe
           working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
         - name: Upload release assets
           uses: actions/upload-release-asset@v1
