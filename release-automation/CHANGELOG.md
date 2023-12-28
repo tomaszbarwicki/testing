@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/tomaszbarwicki/testing/compare/v0.3.4...v0.4.0) (2023-12-28)
+
+
+### Features
+
+* variables parametrization ([0c60681](https://github.com/tomaszbarwicki/testing/commit/0c60681a9e720407d932b5052746dd54af11696f))
+
+
+### Bug Fixes
+
+* variables ([b772cf3](https://github.com/tomaszbarwicki/testing/commit/b772cf399190fcc186a34b29e8db0fdfffdeaa0e))
+
 ## [0.3.4](https://github.com/tomaszbarwicki/testing/compare/v0.3.3...v0.3.4) (2023-12-22)
 
 
