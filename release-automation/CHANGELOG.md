@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/tomaszbarwicki/testing/compare/v0.5.0...v0.6.0) (2023-12-28)
+
+
+### Features
+
+* binary for windows ([ed2b159](https://github.com/tomaszbarwicki/testing/commit/ed2b159361d7e4602398eefbac5800d948cb75b5))
+
 ## [0.5.0](https://github.com/tomaszbarwicki/testing/compare/v0.4.1...v0.5.0) (2023-12-28)
 
 
