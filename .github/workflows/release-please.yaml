@@ -55,15 +55,26 @@ jobs:
           uses: actions/setup-go@v4
           with:
             go-version-file: 'release-automation/go.mod'
-        - name: Build linux/macos binary
-          if: ${{ matrix.goos }} != 'windows'
-          run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
-          working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
         - name: Build windows binary
-          if: ${{ matrix.goos }} == 'windows'
+          if: ${{ matrix.goos == 'windows' }} 
           run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}.exe
           working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
-        - name: Upload release assets
+        - name: Upload windows release assets
+          if: ${{ matrix.goos == 'windows' }} 
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ needs.prepare-release.outputs.upload_url }}
+            asset_path: ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}.exe
+            asset_name: ${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}.exe
+            asset_content_type: application/octet-stream
+        - name: Build other binaries
+          if: ${{ matrix.goos != 'windows' }} 
+          run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
+        - name: Upload other release assets
+          if: ${{ matrix.goos != 'windows' }} 
           uses: actions/upload-release-asset@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
