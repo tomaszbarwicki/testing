@@ -5,7 +5,7 @@ on:
 permissions:
     contents: write
     pull-requests: write
-name: release please
+name: Create GitHub Release
 env:
   APP_NAME: 'release-automation'
 
@@ -18,6 +18,7 @@ jobs:
           version: ${{ steps.release.outputs[format('{0}--major',env.APP_NAME)] }}.${{ steps.release.outputs[format('{0}--minor', env.APP_NAME)] }}.${{ steps.release.outputs[format('{0}--patch', env.APP_NAME)] }}
         steps:
         - uses: google-github-actions/release-please-action@v4
+          name: Prepare release
           id: release
           with:
             path: ${{ env.APP_NAME }}
@@ -38,6 +39,7 @@ jobs:
             git push origin v${{ steps.release.outputs[format('{0}--major',env.APP_NAME)]}}
             git push origin v${{ steps.release.outputs[format('{0}--major',env.APP_NAME)] }}.${{ steps.release.outputs[format('{0}--minor', env.APP_NAME)] }}
     build:
+      if: ${{ needs.prepare-release.outputs.release_created }}
       runs-on: ubuntu-latest
       needs: prepare-release
       strategy:
@@ -50,16 +52,13 @@ jobs:
       steps:
         - uses: actions/checkout@v4
         - name: Set up Go
-          if: ${{ needs.prepare-release.outputs.release_created }}
           uses: actions/setup-go@v4
           with:
             go-version-file: 'release-automation/go.mod'
         - name: Build binary
-          if: ${{ needs.prepare-release.outputs.release_created }}
           run: env GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o  ${{ github.workspace }}/bin/${{ env.APP_NAME }}-${{ needs.prepare-release.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
           working-directory:  ${{ github.workspace }}/${{ env.APP_NAME }}
         - name: Upload release assets
-          if: ${{ needs.prepare-release.outputs.release_created }}
           uses: actions/upload-release-asset@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
