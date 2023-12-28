@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/tomaszbarwicki/testing/compare/v0.4.1...v0.5.0) (2023-12-28)
+
+
+### Features
+
+* condition on job level ([3842b03](https://github.com/tomaszbarwicki/testing/commit/3842b031fbff14638ab6370c3b3de3c79cba13e9))
+
 ## [0.4.1](https://github.com/tomaszbarwicki/testing/compare/v0.4.0...v0.4.1) (2023-12-28)
 
 
