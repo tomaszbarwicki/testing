@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/tomaszbarwicki/testing/compare/v0.3.3...v0.3.4) (2023-12-22)
+
+
+### Bug Fixes
+
+* artifact version ([4289a78](https://github.com/tomaszbarwicki/testing/commit/4289a78bfd4e5e94ca0f6a3df0ed9ca7ce9967d7))
+
 ## [0.3.3](https://github.com/tomaszbarwicki/testing/compare/v0.3.2...v0.3.3) (2023-12-22)
 
 
