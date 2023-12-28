@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/tomaszbarwicki/testing/compare/v0.4.0...v0.4.1) (2023-12-28)
+
+
+### Bug Fixes
+
+* all variables ([301b2f6](https://github.com/tomaszbarwicki/testing/commit/301b2f6a6b017c00b81b85ca20d161cefb828e07))
+
 ## [0.4.0](https://github.com/tomaszbarwicki/testing/compare/v0.3.4...v0.4.0) (2023-12-28)
 
 
