@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/tomaszbarwicki/testing/compare/v0.6.0...v0.6.1) (2023-12-28)
+
+
+### Bug Fixes
+
+* binary for windows ([c4b93d0](https://github.com/tomaszbarwicki/testing/commit/c4b93d05949226b2881bf198f92a06f06eabf1ee))
+
 ## [0.6.0](https://github.com/tomaszbarwicki/testing/compare/v0.5.0...v0.6.0) (2023-12-28)
 
 
