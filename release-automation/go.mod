@@ -9,7 +9,7 @@ require (
 	github.com/otiai10/copy v1.12.0
 	github.com/spf13/cobra v1.7.0
 	golang.org/x/oauth2 v0.13.0
-	golang.org/x/text v0.13.0
+	golang.org/x/text v0.14.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.13.0
