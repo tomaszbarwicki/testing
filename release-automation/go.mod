@@ -12,9 +12,9 @@ require (
 	golang.org/x/text v0.14.0
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.13.0
-	k8s.io/api v0.28.2
-	k8s.io/client-go v0.28.2
+	helm.sh/helm/v3 v3.13.3
+	k8s.io/api v0.28.4
+	k8s.io/client-go v0.28.4
 )
 
 require (
@@ -76,8 +76,8 @@ require (
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/apiextensions-apiserver v0.28.2 // indirect
-	k8s.io/apimachinery v0.28.2 // indirect
+	k8s.io/apiextensions-apiserver v0.28.4 // indirect
+	k8s.io/apimachinery v0.28.4 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20231010175941-2dd684a91f00 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
