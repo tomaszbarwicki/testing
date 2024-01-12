@@ -1,0 +1,15 @@
+name: "Quality Checks (Release Guidelines)"
+
+on:
+  workflow_dispatch:
+jobs:
+  check-quality:
+    name: Check quality guidelines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run quality checks
+        uses: eclipse-tractusx/sig-release@v1
+        with:
+          version: "1.0.0"
