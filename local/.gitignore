@@ -1,0 +1,5 @@
+*.key
+*.cert
+*.keys
+*.secret
+.env
