@@ -24,4 +24,4 @@ exceptions:
 #    - "https://github.com/eclipse-tractusx/portal-backend"
   - trg: "TRG 5.09 - Helm test"
     repository:
-    - "https://github.com/eclipse-tractusx/tractusx-edc"
+#    - "https://github.com/eclipse-tractusx/tractusx-edc"
