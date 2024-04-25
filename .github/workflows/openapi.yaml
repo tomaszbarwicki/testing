@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Deploy Open APIs swagger
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
           path: ${{ matrix.dir }}
           files: ${{ matrix.file }}
 
-   deploy_swagger_ui:
+  deploy_swagger_ui:
     needs: generate_swagger_ui
     runs-on: ubuntu-latest
     steps:
