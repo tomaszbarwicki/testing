@@ -14,7 +14,7 @@ jobs:
       - name: Create file list
         id: create_file_list
         run: |
-          FILE_LIST=$(find . -type f \( -name "*.yaml" -o -name "*.yml" \))
+          FILE_LIST=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \))
           DIR_LIST=$(for file in $FILE_LIST; do dirname $file; done | uniq)
           echo "::set-output name=file_list::$FILE_LIST"
           echo "::set-output name=dir_list::$DIR_LIST"
