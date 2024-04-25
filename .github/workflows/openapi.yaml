@@ -1,4 +1,4 @@
-name: Deploy Open APIs swagger
+name: Deploy Open APIs Swagger
 
 on:
   workflow_dispatch:
@@ -16,16 +16,16 @@ jobs:
         run: |
           FILE_LIST=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \))
           DIR_LIST=$(for file in $FILE_LIST; do dirname $file; done | uniq)
-          echo "::set-output name=file_list::$FILE_LIST"
-          echo "::set-output name=dir_list::$DIR_LIST"
+          echo "::set-output name=file_list::$(echo "$FILE_LIST" | jq -R -s 'split("\n")')"
+          echo "::set-output name=dir_list::$(echo "$DIR_LIST" | jq -R -s 'split("\n")')"
 
   generate_swagger_ui:
     needs: generate_matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        file: ${{ fromJson(needs.generate_matrix.outputs.file_list) }}
-        dir: ${{ fromJson(needs.generate_matrix.outputs.dir_list) }}
+        file: ${{fromJson(needs.generate_matrix.outputs.file_list)}}
+        dir: ${{fromJson(needs.generate_matrix.outputs.dir_list)}}
 
     steps:
       - name: Checkout repository
