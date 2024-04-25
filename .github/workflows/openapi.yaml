@@ -4,30 +4,48 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-openapi-spec:
+  generate_matrix:
     runs-on: ubuntu-latest
+    outputs:
+      file_list: ${{ steps.create_file_list.outputs.file_list }}
+      dir_list: ${{ steps.create_file_list.outputs.dir_list }}
     steps:
       - uses: actions/checkout@v4
-      - name: Upload openapi.json
-        uses: actions/upload-artifact@v4
-        with:
-          name: spec-file
-          path: openapi.yaml
-  deploy:
-    needs: generate-openapi-spec
+      - name: Create file list
+        id: create_file_list
+        run: |
+          FILE_LIST=$(find . -type f \( -name "*.yaml" -o -name "*.yml" \))
+          DIR_LIST=$(for file in $FILE_LIST; do dirname $file; done | uniq)
+          echo "::set-output name=file_list::$FILE_LIST"
+          echo "::set-output name=dir_list::$DIR_LIST"
+
+  generate_swagger_ui:
+    needs: generate_matrix
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.generate_matrix.outputs.file_list) }}
+        dir: ${{ fromJson(needs.generate_matrix.outputs.dir_list) }}
+
     steps:
-      - name: Download openapi.yaml
-        uses: actions/download-artifact@v4
-        with:
-          name: spec-file
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
-          output: swagger-ui
-          spec-file: openapi.yaml
+          path: ${{ matrix.dir }}
+          files: ${{ matrix.file }}
+
+   deploy_swagger_ui:
+    needs: generate_swagger_ui
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: swagger-ui
+          publish_dir: docs
