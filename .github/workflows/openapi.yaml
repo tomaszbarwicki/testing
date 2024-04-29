@@ -7,11 +7,11 @@ jobs:
   generate_matrix:
     runs-on: ubuntu-latest
     outputs:
-      file_list: ${{ steps.create_openapi_list.outputs.file_list }}
+      file_list: ${{ steps.create_file_list.outputs.file_list }}
     steps:
       - uses: actions/checkout@v4
       - name: Create OpenAPI specs list
-        id: create_openapi_list
+        id: create_file_list
         run: |
           FILE_LIST=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \))
           echo "FILE_LIST=${FILE_LIST}" >> $GITHUB_OUTPUT
