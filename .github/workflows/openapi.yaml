@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        file: ${{ steps.create_openapi_list.outputs.file_list }}
+        file: ${{ steps.generate_matrix.outputs.file_list }}
 
     steps:
       - name: Checkout repository
