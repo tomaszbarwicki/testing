@@ -13,16 +13,14 @@ jobs:
       - name: Create OpenAPI specs list
         id: create_file_list
         run: |
-          FILE_LIST=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \))
-          echo "FILE_LIST=${FILE_LIST}" >> $GITHUB_OUTPUT
+          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/"&"/' | paste -sd "," -)
+          echo "matrix={\"spec\": [${FILES_ARRAY}]}" >> $GITHUB_OUTPUT
 
   generate_swagger_ui:
     needs: generate_matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        file: ${{ fromJson(needs.generate_matrix.outputs.file_list) }}
-
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.file_list) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,7 +28,7 @@ jobs:
       - name: Determine directory for file
         id: determine_directory
         run: |
-          FILE_PATH="${{ matrix.file }}"
+          FILE_PATH="${{ matrix.spec }}"
           DIR_PATH=$(dirname "${FILE_PATH}")
           echo "DIR_PATH=${DIR_PATH}" >> $GITHUB_OUTPUT
 
