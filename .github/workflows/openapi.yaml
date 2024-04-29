@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        file: ${{ steps.generate_matrix.outputs.file_list }}
+        file: ${{ fromJson(needs.generate_matrix.outputs.file_list) }}
 
     steps:
       - name: Checkout repository
@@ -37,7 +37,7 @@ jobs:
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
-          path: ${{ env.DIR_PATH }}
+          path: ${{ steps.determine_directory.outputs.DIR_PATH }}
           files: ${{ matrix.file }}
 
   deploy_swagger_ui:
