@@ -3,24 +3,29 @@ name: Create & Deploy OpenAPIs Swagger UI
 on:
   workflow_dispatch:
 
+# env:
+  # FILES: ["docs/release-automation-playground/1.0.0/product_openapi.yaml","docs/release-automation-playground/2.0.0/product_v2_openapi.yaml","docs/release-automation-playground/3.0.0/product_v3_openapi.yaml"]
+
 jobs:
   generate_matrix:
     runs-on: ubuntu-latest
     outputs:
-      file_list: ${{ steps.create_file_list.outputs.file_list }}
+      specs: ${{ steps.create_file_list.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
       - name: Create OpenAPI specs list
         id: create_file_list
         run: |
-          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/"&"/' | paste -sd "," -)
-          echo "matrix={\"spec\": [${FILES_ARRAY}]}" >> $GITHUB_OUTPUT
-
+          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/\"&\"/' | paste -sd "," -) 
+          echo "matrix={\"specs\": [${FILES_ARRAY}]}" >> $GITHUB_OUTPUT
+          # echo "matrix={\"specs\": [\"foo\", \"bar\"]}" >> $GITHUB_OUTPUT
+          # echo "matrix=${{env.FILES}}" >> $GITHUB_OUTPUT
   generate_swagger_ui:
     needs: generate_matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.file_list) }}
+      matrix: ${{ fromJson(needs.generate_matrix.outputs.specs) }}
+        # spec: ${{ fromJson(needs.generate_matrix.outputs.specs) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,15 +33,15 @@ jobs:
       - name: Determine directory for file
         id: determine_directory
         run: |
-          FILE_PATH="${{ matrix.spec }}"
+          FILE_PATH="${{ matrix.specs }}"
           DIR_PATH=$(dirname "${FILE_PATH}")
           echo "DIR_PATH=${DIR_PATH}" >> $GITHUB_OUTPUT
 
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
-          path: ${{ steps.determine_directory.outputs.DIR_PATH }}
-          files: ${{ matrix.file }}
+          output: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
+          spec-file: ${{ matrix.specs }}
 
   deploy_swagger_ui:
     needs: generate_swagger_ui
