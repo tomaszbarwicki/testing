@@ -42,9 +42,24 @@ jobs:
         with:
           output: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
           spec-file: ${{ matrix.specs }}
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs
+          name: openapi-${{ github.event.repository.name }}
+          path: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
+
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: docs
+  deploy_swagger_ui:
+    needs: generate_swagger_ui
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: docs
+          pattern: openapi-*
+          # merge-multiple: true
+      - run: ls -R docs
