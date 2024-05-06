@@ -35,8 +35,9 @@ jobs:
         run: |
           FILE_PATH="${{ matrix.specs }}"
           DIR_PATH=$(dirname "${FILE_PATH}")
+          RANDOM=$(uuidgen)
           echo "DIR_PATH=${DIR_PATH}" >> $GITHUB_OUTPUT
-
+          echo "RANDOM=${RANDOM}" >> $GITHUB_OUTPUT
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
@@ -44,8 +45,9 @@ jobs:
           spec-file: ${{ matrix.specs }}
       - uses: actions/upload-artifact@v4
         with:
-          name: openapi-${{ github.event.repository.name }}
-          path: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
+          name: openapi-${{ github.event.repository.name }}-${{ steps.determine_directory.outputs.RANDOM }}
+          # path: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
+          path: docs
 
       # - name: Deploy to GitHub Pages
       #   uses: peaceiris/actions-gh-pages@v3
