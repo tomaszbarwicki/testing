@@ -40,14 +40,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: openapi-${{ steps.determine_directory.outputs.RANDOM }}
-          # path: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
           path: docs
-
-      # - name: Deploy to GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: docs
   deploy_swagger_ui:
     needs: generate_swagger_ui
     runs-on: ubuntu-latest
@@ -58,4 +51,8 @@ jobs:
           path: docs
           pattern: openapi-*
           merge-multiple: true
-      - run: ls -R docs
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
