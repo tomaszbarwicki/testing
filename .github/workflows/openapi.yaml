@@ -3,9 +3,6 @@ name: Create & Deploy OpenAPIs Swagger UI
 on:
   workflow_dispatch:
 
-# env:
-  # FILES: ["docs/release-automation-playground/1.0.0/product_openapi.yaml","docs/release-automation-playground/2.0.0/product_v2_openapi.yaml","docs/release-automation-playground/3.0.0/product_v3_openapi.yaml"]
-
 jobs:
   generate_matrix:
     runs-on: ubuntu-latest
@@ -16,16 +13,13 @@ jobs:
       - name: Create OpenAPI specs list
         id: create_file_list
         run: |
-          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/\"&\"/' | paste -sd "," -) 
+          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/\"&\"/' | paste -sd "," -)
           echo "matrix={\"specs\": [${FILES_ARRAY}]}" >> $GITHUB_OUTPUT
-          # echo "matrix={\"specs\": [\"foo\", \"bar\"]}" >> $GITHUB_OUTPUT
-          # echo "matrix=${{env.FILES}}" >> $GITHUB_OUTPUT
   generate_swagger_ui:
     needs: generate_matrix
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.generate_matrix.outputs.specs) }}
-        # spec: ${{ fromJson(needs.generate_matrix.outputs.specs) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,7 +39,7 @@ jobs:
           spec-file: ${{ matrix.specs }}
       - uses: actions/upload-artifact@v4
         with:
-          name: openapi-${{ github.event.repository.name }}-${{ steps.determine_directory.outputs.RANDOM }}
+          name: openapi-${{ steps.determine_directory.outputs.RANDOM }}
           # path: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
           path: docs
 
@@ -63,5 +57,5 @@ jobs:
         with:
           path: docs
           pattern: openapi-*
-          # merge-multiple: true
+          merge-multiple: true
       - run: ls -R docs
