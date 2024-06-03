@@ -1,36 +1,19 @@
-name: Publish APIs
+name: Create & Deploy OpenAPIs Swagger UI
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 4 * * *"
-
-env:
-  API_COLLECTOR_DIR: "src/api-collector"
 
 jobs:
-  collect_openapi:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: "${{ env.API_COLLECTOR_DIR }}/go.mod"
-      - name: Collect OpenAPI specs
-        run: |
-          cd ${{ env.API_COLLECTOR_DIR }}
-          go run main.go -owner ${{ github.repository_owner }} -token ${{ secrets.GITHUB_TOKEN }}
   generate_matrix:
-    needs: collect_openapi
     runs-on: ubuntu-latest
     outputs:
-      specs: ${{ steps.create_specs_list.outputs.matrix }}
+      specs: ${{ steps.create_file_list.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
       - name: Create OpenAPI specs list
-        id: create_specs_list
+        id: create_file_list
         run: |
-          FILES_ARRAY=$(find docs -type f \( -name "*_openapi.yaml" -o -name "*_openapi.yml" \) | sed 's/.*/\"&\"/' | paste -sd "," -)
+          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/\"&\"/' | paste -sd "," -)
           echo "matrix={\"specs\": [${FILES_ARRAY}]}" >> $GITHUB_OUTPUT
   generate_swagger_ui:
     needs: generate_matrix
@@ -38,8 +21,10 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.generate_matrix.outputs.specs) }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Determine spec file directory
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine directory for file
         id: determine_directory
         run: |
           FILE_PATH="${{ matrix.specs }}"
