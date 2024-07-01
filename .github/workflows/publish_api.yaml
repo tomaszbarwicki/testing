@@ -11,6 +11,8 @@ env:
 jobs:
   collect_openapi:
     runs-on: ubuntu-latest
+    outputs:
+      specs_exists: ${{ steps.check_specs.outputs.exists }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -23,13 +25,23 @@ jobs:
           echo "RANDOM=${RANDOM}" >> $GITHUB_OUTPUT
           cd ${{ env.API_COLLECTOR_DIR }}
           go run main.go -owner catenax-ng -token ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for specs
+        id: check_specs
+        run: |
+          if [ -d "docs" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - uses: actions/upload-artifact@v4
+        if: steps.check_specs.outputs.exists == 'true'
         with:
           name: openapi-${{ steps.collect_specs.outputs.RANDOM }}
           path: docs
   generate_matrix:
-    needs: collect_openapi
     runs-on: ubuntu-latest
+    needs: collect_openapi
+    if: needs.collect_openapi.outputs.specs_exists == 'true'
     outputs:
       specs: ${{ steps.create_specs_list.outputs.matrix }}
     steps:
