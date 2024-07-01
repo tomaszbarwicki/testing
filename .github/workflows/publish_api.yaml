@@ -1,0 +1,86 @@
+name: Publish APIs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * *"
+
+env:
+  API_COLLECTOR_DIR: "src/api-collector"
+
+jobs:
+  collect_openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "${{ env.API_COLLECTOR_DIR }}/go.mod"
+      - name: Collect OpenAPI specs
+        id: collect_specs
+        run: |
+          RANDOM=$(uuidgen)
+          echo "RANDOM=${RANDOM}" >> $GITHUB_OUTPUT
+          cd ${{ env.API_COLLECTOR_DIR }}
+          go run main.go -owner catenax-ng -token ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openapi-${{ steps.collect_specs.outputs.RANDOM }}
+          path: docs
+  generate_matrix:
+    needs: collect_openapi
+    runs-on: ubuntu-latest
+    outputs:
+      specs: ${{ steps.create_specs_list.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download OpenAPI specs artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: docs
+          pattern: openapi-*
+          merge-multiple: true
+      - name: Create OpenAPI specs list
+        id: create_specs_list
+        run: |
+          FILES_ARRAY=$(find docs -type f \( -name "*.yaml" -o -name "*.yml" \) | sed 's/.*/\"&\"/' | paste -sd "," -)
+          echo "matrix={\"specs\": [${FILES_ARRAY}]}" >> $GITHUB_OUTPUT
+  generate_swagger_ui:
+    needs: generate_matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.generate_matrix.outputs.specs) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine spec file directory
+        id: determine_directory
+        run: |
+          FILE_PATH="${{ matrix.specs }}"
+          DIR_PATH=$(dirname "${FILE_PATH}")
+          RANDOM=$(uuidgen)
+          echo "DIR_PATH=${DIR_PATH}" >> $GITHUB_OUTPUT
+          echo "RANDOM=${RANDOM}" >> $GITHUB_OUTPUT
+      - name: Generate Swagger UI
+        uses: Legion2/swagger-ui-action@v1
+        with:
+          output: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
+          spec-file: ${{ matrix.specs }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swagger-${{ steps.determine_directory.outputs.RANDOM }}
+          path: docs
+  deploy_swagger_ui:
+    needs: generate_swagger_ui
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: docs
+          pattern: swagger-*
+          merge-multiple: true
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
