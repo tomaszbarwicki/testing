@@ -44,7 +44,7 @@ jobs:
           RANDOM=$(uuidgen)
           echo "RANDOM=${RANDOM}" >> $GITHUB_OUTPUT
           cd ${{ env.API_COLLECTOR_DIR }}
-	  go run main.go -owner catenax-ng -token ${{ secrets.GITHUB_TOKEN }}
+	        go run main.go -owner catenax-ng -token ${{ secrets.GITHUB_TOKEN }}
       - name: Check for specs
         id: check_specs
         run: |
