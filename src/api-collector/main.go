@@ -28,15 +28,16 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/google/go-github/v61/github"
 	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
 )
 
-const API_DOCS_REPO = "api-hub"
-
+const (
+	API_DOCS_REPO = "api-hub"
+	API_SPEC_PATH = "/docs/api/openAPI.yaml"
+)
 type OpenAPIInfo struct {
 	Version string `yaml:"version"`
 	Title   string `yaml:"title"`
@@ -63,21 +64,15 @@ func main() {
 	}
 	for _, repo := range repos {
 		log.Println("Scanning repo ", *repo.Name)
-		specsUrls, err := getAPISpecsUrls(ctx, client, owner, *repo.Name)
-		if err != nil {
-			log.Println(err)
-			continue
+		downloadedSpecs := downloadAPISpecs(ctx, client, owner, *repo.Name)
+		if len(downloadedSpecs) > 0 {
+			log.Println("List of downloaded OpenAPI specs:")
+			for _, downloadedSpec := range downloadedSpecs {
+				log.Printf("- %s\n",downloadedSpec)
+			}
+		} else {
+			log.Printf("No OpenAPI specs found in .tractusx metadata.")
 		}
-		if specsUrls == nil {
-			log.Println("No OpenAPI specs found")
-			continue
-		}
-
-		downloadedSpecs := downloadAPISpecs(*repo.Name, specsUrls)
-		for downloadedSpec := range downloadedSpecs {
-			log.Println(downloadedSpec)
-		}
-		// commitDownloadedSpec(ctx, client, owner, API_DOCS_REPO, downloadedSpecs)
 	}
 }
 
@@ -135,7 +130,7 @@ func getOrgRepos(ctx context.Context, gitOwner string, client *github.Client) ([
 	return allRepos, nil
 }
 
-func getAPISpecsUrls(ctx context.Context, client *github.Client, owner string, repo string) ([]string, error) {
+func getAPISpecsUrlsFromMetadata(ctx context.Context, client *github.Client, owner string, repo string) ([]string, error) {
 	metadataFile, _, _, err := client.Repositories.GetContents(ctx, owner, repo, MetadataFilename, &github.RepositoryContentGetOptions{
 		Ref: "main",
 	})
@@ -153,77 +148,65 @@ func getAPISpecsUrls(ctx context.Context, client *github.Client, owner string, r
 	return m.OpenApiSpecs, nil
 }
 
-func downloadAPISpecs(repo string, specsUrls []string) []string {
+func downloadAPISpecs(ctx context.Context, client *github.Client, owner string, repo string) []string {
 	var downloadedSpecs []string
+	specsUrls, err := getAPISpecsUrlsFromMetadata(ctx, client, owner, repo)
+	if err != nil {
+		log.Printf("%v\n", err)
+	}
+	if len(specsUrls) == 0 {
+		specsUrls = append(specsUrls, fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/main/%s", owner, repo, API_SPEC_PATH))
+	}
 	for _, url := range specsUrls {
-		resp, err := http.Get(url)
+		specContent, err := getAPISpecFromUrl(url)
 		if err != nil {
-			log.Printf("Error downloading API spec file: %v\n", err)
+			log.Printf("%v\n",err)
 			continue
 		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			log.Printf("Bad HTTP status: %s\n", resp.Status)
-			continue
-		}
-		content, err := io.ReadAll(resp.Body)
+		specPath, err := saveAPISpec(specContent, repo)
 		if err != nil {
-			log.Printf("Error reading http response: %v\n", err)
+			log.Printf("%v\n",err)
 			continue
 		}
-		var spec OpenAPISpec
-		err = yaml.Unmarshal(content, &spec)
-		if err != nil {
-			log.Printf("Error parsing OpenAPI spec yaml format: %s\n", err)
-			continue
-		}
-		dirPath := path.Join("docs", repo, spec.Info.Version)
-		err = os.MkdirAll(dirPath, os.ModePerm)
-		if err != nil {
-			log.Printf("Error creating directory: %s\n", err)
-			continue
-		}
-		urlSplit := strings.Split(url, "/")
-		specName := urlSplit[len(urlSplit)-1]
-		filePath := path.Join(dirPath, specName)
-		err = os.WriteFile(filePath, content, 0644)
-		if err != nil {
-			log.Printf("Error saving OpenAPI spec content to file: %s\n", err)
-			continue
-		}
-		downloadedSpecs = append(downloadedSpecs, filePath)
-		log.Printf("OpenAPI spec %s downloaded successfully\n", specName)
+		downloadedSpecs = append(downloadedSpecs, specPath)
+		log.Printf("OpenAPI spec saved successfully\n", specPath)
 	}
 	return downloadedSpecs
 }
 
-func commitDownloadedSpec(ctx context.Context, client *github.Client, owner string, repo string, specs []string) {
-	for _, spec := range specs {
-		content, err := os.ReadFile(spec)
-		if err != nil {
-			log.Printf("Error reading specification file: %v\n", err)
-			continue
-		}
-		fileOpt := &github.RepositoryContentGetOptions{
-			Ref: "main",
-		}
-		_, _, _, err = client.Repositories.GetContents(ctx, owner, repo, spec, fileOpt)
-		if err != nil && content != nil {
-			if githubErr, ok := err.(*github.ErrorResponse); ok && githubErr.Response.StatusCode == 404 {
-				fileOpt := &github.RepositoryContentFileOptions{
-					Message: github.String(fmt.Sprintf("chore: upload OpenAPI spec: %s", spec)),
-					Content: content,
-				}
-				_, _, err := client.Repositories.CreateFile(ctx, owner, repo, spec, fileOpt)
-				if err != nil {
-					log.Printf("Error uploading file: %s\n", err)
-					continue
-				}
-				log.Printf("Uploaded successfully %s\n", spec)
-			}
-		} else {
-			log.Printf("Spec file %s already exists, skipping upload.\n", spec)
-		}
+func getAPISpecFromUrl(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return []byte{}, fmt.Errorf("error downloading API spec file: %v", err)
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return []byte{}, fmt.Errorf("bad HTTP status: %s", resp.Status)
+
+	}
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return []byte{}, fmt.Errorf("error reading HTTP response: %v", err)
+	}
+	return content, nil
+}
+
+func saveAPISpec(content []byte, repo string) (string, error)  {
+	var spec OpenAPISpec
+	err := yaml.Unmarshal([]byte(content), &spec)
+	if err != nil {
+		return "", fmt.Errorf("error parsing OpenAPI spec yaml format: %v", err)
+	}
+	dirPath := path.Join("docs", repo, spec.Info.Version)
+	err = os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("error creating directory: %v", err)
+	}
+	filePath := path.Join(dirPath, "openAPI.yaml")
+	err = os.WriteFile(filePath, content, 0644)
+	if err != nil {
+		return "", fmt.Errorf("error saving OpenAPI spec content to file: %v", err)
+	}
+	return filePath, nil
 }
