@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/google/go-github/v61/github"
 	"golang.org/x/oauth2"
@@ -63,6 +64,7 @@ func main() {
 		log.Fatalf("Error fetching repos: %s", err)
 	}
 	for _, repo := range repos {
+		*repo.Name = "release-automation-playground"
 		log.Println("Scanning repo ", *repo.Name)
 		downloadedSpecs := downloadAPISpecs(ctx, client, owner, *repo.Name)
 		if len(downloadedSpecs) > 0 {
@@ -73,6 +75,7 @@ func main() {
 		} else {
 			log.Printf("No OpenAPI specs found in .tractusx metadata.")
 		}
+		break
 	}
 }
 
@@ -163,7 +166,11 @@ func downloadAPISpecs(ctx context.Context, client *github.Client, owner string, 
 			log.Printf("%v\n",err)
 			continue
 		}
-		specPath, err := saveAPISpec(specContent, repo)
+		urlSplit := strings.Split(url, "/")
+		fileName := urlSplit[len(urlSplit)-1]
+		fmt.Println(fileName)
+		fmt.Println(urlSplit)
+		specPath, err := saveAPISpec(fileName, specContent, repo)
 		if err != nil {
 			log.Printf("%v\n",err)
 			continue
@@ -192,18 +199,24 @@ func getAPISpecFromUrl(url string) ([]byte, error) {
 	return content, nil
 }
 
-func saveAPISpec(content []byte, repo string) (string, error)  {
+func saveAPISpec(fileName string, content []byte, repo string) (string, error)  {
 	var spec OpenAPISpec
 	err := yaml.Unmarshal([]byte(content), &spec)
 	if err != nil {
 		return "", fmt.Errorf("error parsing OpenAPI spec yaml format: %v", err)
 	}
-	dirPath := path.Join("docs", repo, spec.Info.Version)
+	specVer := spec.Info.Version
+	// check if it's KIT API
+	if strings.Contains(fileName, "kit_") {
+		nameSplit := strings.Split(fileName, "_")
+		specVer = fmt.Sprintf("kit-%s-%s", nameSplit[1], specVer)
+	}
+	dirPath := path.Join("docs", repo, specVer)
 	err = os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
 		return "", fmt.Errorf("error creating directory: %v", err)
 	}
-	filePath := path.Join(dirPath, "openAPI.yaml")
+	filePath := path.Join(dirPath, fileName)
 	err = os.WriteFile(filePath, content, 0644)
 	if err != nil {
 		return "", fmt.Errorf("error saving OpenAPI spec content to file: %v", err)
