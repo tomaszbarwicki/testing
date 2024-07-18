@@ -95,14 +95,20 @@ jobs:
         run: |
           FILE_PATH="${{ matrix.specs }}"
           DIR_PATH=$(dirname "${FILE_PATH}")
+          PRODUCT_PATH=$(dirname "${DIR_PATH}")
           RANDOM=$(uuidgen)
           echo "DIR_PATH=${DIR_PATH}" >> $GITHUB_OUTPUT
+          echo "PRODUCT_PATH=${PRODUCT_PATH}" >> $GITHUB_OUTPUT
           echo "RANDOM=${RANDOM}" >> $GITHUB_OUTPUT
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
           output: ${{ steps.determine_directory.outputs.DIR_PATH }}/swagger-ui
           spec-file: ${{ matrix.specs }}
+      - name: Generate Directory Listings
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
+        with:
+          FOLDER: ${{ steps.determine_directory.outputs.PRODUCT_PATH }}
       - uses: actions/upload-artifact@v4
         with:
           name: swagger-${{ steps.determine_directory.outputs.RANDOM }}
@@ -117,6 +123,10 @@ jobs:
           path: docs
           pattern: swagger-*
           merge-multiple: true
+      - name: Generate Directory Listings
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
+        with:
+          FOLDER: docs
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
